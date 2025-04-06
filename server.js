@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 
 const chatRoutes = require("./src/routes/chatRoutes");
+const tipRoutes = require("./src/routes/tipRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({extends: true}));
 
 app.use("/api", chatRoutes);
+app.use("/api", tipRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
