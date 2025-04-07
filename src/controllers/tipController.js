@@ -1,4 +1,5 @@
 const { generateText } = require("../services/huggingFaceService");
+const { insertLog } = require("../models/logModel");
 
 async function generateTip(req, res) {
   const { topic } = req.body;
@@ -11,8 +12,10 @@ async function generateTip(req, res) {
 
   try {
     const tip = await generateText(prompt);
+    await insertLog({ endpoint: "/generate-tip", topic, ai_response: tip });
     res.json({ tip });
   } catch (error) {
+    console.log('error ', error)
     res.status(500).json({ error: "Failed to generate tip" });
   }
 }
