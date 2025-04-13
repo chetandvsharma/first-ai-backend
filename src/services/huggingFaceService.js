@@ -1,4 +1,4 @@
-const axios = require("axios");
+import axios from "axios";
 
 async function generateText(prompt) {
   try {
@@ -20,4 +20,4 @@ async function generateText(prompt) {
   }
 }
 
-module.exports = { generateText };
+export { generateText };

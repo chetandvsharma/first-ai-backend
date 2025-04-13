@@ -1,23 +1,23 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const { createLogsTable } = require("./src/models/logModel");
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import { createLogsTable } from './src/models/logModel.js';
+import chatRoutes from './src/routes/chatRoutes.js';
+import tipRoutes from './src/routes/tipRoutes.js';
+import logRoutes from './src/routes/logRoutes.js';
 
-const chatRoutes = require("./src/routes/chatRoutes");
-const tipRoutes = require("./src/routes/tipRoutes");
-const logRoutes = require("./src/routes/logRoutes");
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extends: true }));
+app.use(express.urlencoded({ extended: true }));
 
-app.use("/api", chatRoutes);
-app.use("/api", tipRoutes);
-app.use("/api", logRoutes);
+app.use('/api', chatRoutes);
+app.use('/api', tipRoutes);
+app.use('/api', logRoutes);
 
 app.listen(PORT, () => {
   createLogsTable();

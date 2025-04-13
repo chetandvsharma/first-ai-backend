@@ -1,5 +1,5 @@
-const { generateText } = require("../services/huggingFaceService");
-const { insertLog } = require("../models/logModel");
+import { generateText }  from "../services/huggingFaceService.js";
+import { insertLog }  from "../models/logModel.js";
 
 async function generateTip(req, res) {
   const { topic } = req.body;
@@ -12,7 +12,7 @@ async function generateTip(req, res) {
 
   try {
     const tip = await generateText(prompt);
-    await insertLog({ endpoint: "/generate-tip", topic, ai_response: tip });
+    await insertLog({ endpoint: "/generate-tip", prompt: topic, ai_response: tip });
     res.json({ tip });
   } catch (error) {
     console.log('error ', error)
@@ -20,4 +20,4 @@ async function generateTip(req, res) {
   }
 }
 
-module.exports = { generateTip };
+export { generateTip };

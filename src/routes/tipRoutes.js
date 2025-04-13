@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express"
 const router = express.Router();
-const { generateTip } = require("../controllers/tipController");
+import { generateTip } from "../controllers/tipController.js";
 
 router.post("/generate-tip", generateTip);
 
-module.exports = router;
+export default router;

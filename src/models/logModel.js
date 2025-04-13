@@ -1,4 +1,4 @@
-const db = require("../db/knex");
+import db from "../db/knex.js";
 
 async function createLogsTable() {
   const exists = await db.schema.hasTable("logs");
@@ -6,7 +6,7 @@ async function createLogsTable() {
     await db.schema.createTable("logs", (table) => {
       table.increments("id").primary();
       table.string("endpoint");
-      table.text("topic");
+      table.text("prompt");
       table.text("ai_response");
       table.timestamp("created_at").defaultTo(db.fn.now());
     });
@@ -14,25 +14,25 @@ async function createLogsTable() {
   }
 }
 
-async function insertLog({ endpoint, topic, ai_response }) {
-  return db("logs").insert({ endpoint, topic, ai_response });
+async function insertLog({ endpoint, prompt, ai_response }) {
+  return db("logs").insert({ endpoint, prompt, ai_response });
 }
 
 async function getLogs(filters = {}) {
-  let query = db("logs").select("*");
+  const { endpoint, prompt, limit = 50 } = filters;
 
-  if (filters.endpoint) {
-    query = query.where("endpoint", filters.endpoint);
+  let query = db("logs").select("*").limit(limit);
+
+  if (endpoint) {
+    query = query.where("endpoint", endpoint);
   }
 
-  if (filters.topic) {
-    query = query.where("topic", filters.topic);
+  if (prompt) {
+    query = query.where("prompt", prompt);
   }
 
-  // Apply limit (default 50 if not passed)
-  query = query.limit(filters.limit || 50);
-
-  return await query;
+  const result = await query;
+  return result;
 }
 
-module.exports = { createLogsTable, insertLog, getLogs };
+export { createLogsTable, insertLog, getLogs };
