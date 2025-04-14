@@ -20,4 +20,6 @@ async function generateTip(req, res) {
   }
 }
 
+
+
 export { generateTip };

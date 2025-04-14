@@ -12,7 +12,7 @@ async function generateText(prompt) {
         },
       }
     );
-    
+
     return response.data[0]?.generated_text || "No response";
   } catch (error) {
     console.error("Hugging Face API Error:", error.message);
@@ -20,4 +20,23 @@ async function generateText(prompt) {
   }
 }
 
-export { generateText };
+async function analyzeSentiment(text) {
+  try {
+    const response = await axios.post(
+      "https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english",
+      { inputs: text },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+        },
+      }
+    );
+
+    return response.data[0]; // label + score
+  } catch (error) {
+    console.error("Hugging Face API Error:", error.message);
+    throw new Error("Failed to analyze sentiment");
+  }
+}
+
+export { generateText, analyzeSentiment };
