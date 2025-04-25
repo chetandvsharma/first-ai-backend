@@ -39,4 +39,19 @@ async function analyzeSentiment(text) {
   }
 }
 
-export { generateText, analyzeSentiment };
+async function generateEmbedding(text) {
+  const response = await axios.post(
+    "https://api-inference.huggingface.co/embeddings/sentence-transformers/all-MiniLM-L6-v2",
+    { inputs: text },
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data.embedding; // Check actual key based on API response
+}
+
+export { generateText, analyzeSentiment, generateEmbedding };
