@@ -16,4 +16,4 @@ async function checkVectorExists(vectorId) {
   }
 }
 
-checkVectorExists("fact-008");
+checkVectorExists("fact-005");
