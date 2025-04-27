@@ -1,6 +1,6 @@
-import  generateEmbedding from "../services/generateEmbedding.js";
+import generateEmbedding from "../services/generateEmbedding.js";
 import { upsertToPinecone } from "../services/upsertToPinecone.js";
-import {queryPinecone} from "../services/queryFromPinecone.js"
+import { queryPinecone } from "../services/queryFromPinecone.js";
 import { z } from "zod";
 
 const querySchema = z.object({
@@ -9,7 +9,7 @@ const querySchema = z.object({
 
 export async function storeMemory(req, res) {
   try {
-    const { text } = req.body;
+    const { text, source } = req.body;
     if (!text) return res.status(400).json({ error: "Text is required" });
 
     const embedding = await generateEmbedding(text);
@@ -17,7 +17,7 @@ export async function storeMemory(req, res) {
     const id = `memory-${Date.now()}`;
     const metadata = {
       text,
-      source: "user-input",
+      source: source || "user-input",
       timestamp: new Date().toISOString(),
     };
 
@@ -37,10 +37,10 @@ export async function queryMemory(req, res) {
       return res.status(400).json({ error: "Query text is required" });
     }
 
-    const { query } = parse.data;
+    const { query, source } = parse.data;
 
     const embedding = await generateEmbedding(query);
-    const results = await queryPinecone(embedding);
+    const results = await queryPinecone(embedding, source);
 
     res.json({
       matches: results?.matches || [],
