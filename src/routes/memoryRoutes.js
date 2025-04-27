@@ -10,6 +10,6 @@ const router = express.Router();
 router.post("/memory", storeMemory);
 router.get("/memory", queryMemory);
 
-router.get("/chets-gpt", aiRetrival);
+router.post("/chets-gpt", aiRetrival);
 
 export default router;

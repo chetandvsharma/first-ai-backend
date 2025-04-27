@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ask AI Memory</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      #questionInput {
+        width: 300px;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      #askButton {
+        padding: 12px 24px;
+        font-size: 16px;
+        margin-left: 10px;
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      #askButton:hover {
+        background-color: #4338ca;
+      }
+
+      #answerContainer {
+        margin-top: 30px;
+        width: 400px;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      #loading {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #777;
+        animation: pulse 1.5s infinite;
+        display: none;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.3;
+        }
+      }
+
+      #answerDiv {
+        margin-top: 10px;
+        font-size: 18px;
+        text-align: left;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧠 Ask AI Memory</h1>
+
+    <div>
+      <input
+        type="text"
+        id="questionInput"
+        placeholder="Type your question..."
+      />
+      <button id="askButton" onclick="askQuestion()">Ask</button>
+    </div>
+
+    <div id="loading">Thinking...</div>
+
+    <div id="answerContainer" style="display: none">
+      <h2>Answer:</h2>
+      <div id="answerDiv"></div>
+    </div>
+
+    <script>
+      async function askQuestion() {
+        const question = document.getElementById("questionInput").value.trim();
+        const answerDiv = document.getElementById("answerDiv");
+        const loading = document.getElementById("loading");
+        const answerContainer = document.getElementById("answerContainer");
+
+        if (!question) {
+          answerDiv.innerText = "Please enter a question.";
+          answerContainer.style.display = "block";
+          return;
+        }
+
+        answerDiv.innerText = "";
+        answerContainer.style.display = "none";
+        loading.style.display = "block";
+
+        try {
+          const response = await fetch("http://localhost:5000/api/chets-gpt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: question }),
+          });
+
+          const data = await response.json();
+          const answerText = data.chetsGPT || "No answer received.";
+
+          loading.style.display = "none";
+          answerContainer.style.display = "block";
+
+          typeWriter(answerText, answerDiv);
+        } catch (error) {
+          loading.style.display = "none";
+          answerContainer.style.display = "block";
+          answerDiv.innerText = "Error: " + error.message;
+        }
+      }
+
+      function typeWriter(text, element, speed = 30) {
+        let i = 0;
+        element.innerText = "";
+        function typing() {
+          if (i < text.length) {
+            element.innerText += text.charAt(i);
+            i++;
+            setTimeout(typing, speed);
+          }
+        }
+        typing();
+      }
+    </script>
+  </body>
+</html>
