@@ -20,6 +20,26 @@ async function generateText(prompt) {
   }
 }
 
+async function queryAIModel(prompt) {
+  try {
+    const response = await axios.post(
+      "https://api-inference.huggingface.co/models/google/flan-t5-small",
+      { inputs: prompt },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data[0]?.generated_text || "No response";
+  } catch (error) {
+    console.error("Hugging Face API Error:", error.message);
+    throw new Error("Failed to generate text from AI");
+  }
+}
+
 async function analyzeSentiment(text) {
   try {
     const response = await axios.post(
@@ -54,4 +74,4 @@ async function generateEmbedding(text) {
   return response.data.embedding; // Check actual key based on API response
 }
 
-export { generateText, analyzeSentiment, generateEmbedding };
+export { generateText, queryAIModel, analyzeSentiment, generateEmbedding };
