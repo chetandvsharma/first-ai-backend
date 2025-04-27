@@ -1,6 +1,7 @@
 import generateEmbedding from "../services/generateEmbedding.js";
 import { upsertToPinecone } from "../services/upsertToPinecone.js";
 import { queryPinecone } from "../services/queryFromPinecone.js";
+import { retrieveAnswer } from "../services/aiRetrievalService.js";
 import { z } from "zod";
 
 const querySchema = z.object({
@@ -47,6 +48,23 @@ export async function queryMemory(req, res) {
     });
   } catch (error) {
     console.error("❌ Error in queryMemoryController:", error.message);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+}
+
+export async function aiRetrival(req, res) {
+  try {
+    if (!req.body.prompt) {
+      return res.status(400).json({ error: "prompt is required" });
+    }
+  
+    const result = await retrieveAnswer(req.body.prompt);
+
+    res.json({
+      chetsGPT: result,
+    });
+  } catch (error) {
+    console.error("❌ Error in aiRetrivalMemoryController:", error.message);
     res.status(500).json({ error: "Something went wrong" });
   }
 }

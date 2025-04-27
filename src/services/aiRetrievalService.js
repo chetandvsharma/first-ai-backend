@@ -3,43 +3,39 @@ import { queryPinecone } from "./queryPineconeService.js";
 import { queryAIModel } from "./huggingFaceService.js";
 
 export async function retrieveAnswer(userQuery) {
-  try {
-    // Step 1: Embed the user query
-    const embedding = await generateEmbedding(userQuery);
-
-    // Step 2: Query Pinecone
-    const pineconeResult = await queryPinecone(embedding);
-
-    const matches = pineconeResult.matches || [];
-
-    if (matches.length === 0) {
-      return "Sorry, I couldn't find any related information.";
+    try {
+      // 1. Get embedding of userQuery
+      const queryEmbedding = await generateEmbedding(userQuery);
+  
+      // 2. Query Pinecone for matches
+      const queryResponse = await queryPinecone(queryEmbedding);
+  
+      const topMatches = queryResponse.matches.slice(0, 3);
+      const memoriesText = topMatches
+        .map((match, index) => `Memory ${index + 1}: ${match.metadata.text}`)
+        .join("\n");
+  
+      // 3. Construct a smarter prompt
+      const prompt = `
+  You are an intelligent AI assistant. Use the following memories to answer the user's question.
+  If the answer is not found in memories, say "I don't know."
+  
+  Memories:
+  ${memoriesText}
+  
+  User Question: ${userQuery}
+  
+  Answer:
+  `.trim();
+  
+      // console.log("🤖 Built Prompt:\n", prompt);
+  
+      // 4. Query Hugging Face AI Model
+      const answer = await queryAIModel(prompt);
+  
+      return answer;
+    } catch (error) {
+      console.error("❌ AI Retrieval error:", error.message);
+      throw new Error("Failed to retrieve AI answer");
     }
-
-    // Step 3: Build context from matches
-    const contextText = matches.map((match) => match.metadata.text).join("\n");
-
-    // Step 4: Construct prompt
-    const prompt = `
-You are an intelligent assistant.
-Use the following information to answer the user's question.
-
-Memories:
-${contextText}
-
-User's Question:
-${userQuery}
-`;
-
-    // Step 5: Get AI response
-    const aiResponse = await queryAIModel(prompt);
-
-    return aiResponse;
-  } catch (error) {
-    console.error(
-      "❌ AI Retrieval error:",
-      error?.response?.data || error.message
-    );
-    throw new Error("Failed to retrieve AI answer");
-  }
-}
+  };  
